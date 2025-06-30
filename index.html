@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Forever Vault</title>
+  <meta charset="UTF-8">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <h1>🧠 Forever Vault</h1>
+  <textarea id="botPrompt" placeholder="Ask LegacyBot..."></textarea>
+  <button onclick="askLegacyBot()">Ask</button>
+  <pre id="botResponse">Bot reply here...</pre>
+
+  <script>
+    window.askLegacyBot = async function () {
+      const prompt = document.getElementById("botPrompt").value;
+      if (!prompt) return;
+
+      try {
+        const res = await axios.post("/ask", { prompt });
+        document.getElementById("botResponse").innerText = res.data.reply;
+      } catch (err) {
+        document.getElementById("botResponse").innerText = "Error talking to LegacyBot.";
+      }
+    };
+  </script>
+</body>
+</html>
