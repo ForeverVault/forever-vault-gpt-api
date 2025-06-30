@@ -19,7 +19,7 @@ app.post('/api/generate', async (req, res) => {
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o', // Or 'gpt-3.5-turbo' if needed
+      model: 'gpt-3.5-turbo', // Or 'gpt-3.5-turbo' if needed
       messages: [{ role: 'user', content: prompt }],
     });
 
