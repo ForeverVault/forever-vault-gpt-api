@@ -1,0 +1,35 @@
+const express = require("express");
+const axios = require("axios");
+const cors = require("cors");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const OPENAI_API_KEY = "sk-...your-key-here..."; // <-- paste your GPT key here
+
+app.post("/ask", async (req, res) => {
+  try {
+    const prompt = req.body.prompt;
+    const response = await axios.post("https://api.openai.com/v1/chat/completions", {
+      model: "gpt-4",
+      messages: [{ role: "user", content: prompt }]
+    }, {
+      headers: {
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    res.json({ reply: response.data.choices[0].message.content });
+  } catch (error) {
+    console.error("GPT error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to talk to GPT" });
+  }
+});
+
+app.get("/", (req, res) => {
+  res.send("Forever Vault GPT API is live ✅");
+});
+
+app.listen(3000, () => console.log("✅ GPT API running on port 3000"));
