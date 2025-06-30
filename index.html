@@ -43,28 +43,74 @@
   <textarea id="userInput" placeholder="Type your memory, message, or question..."></textarea>
   <br/>
   <button onclick="sendPrompt()">Ask Vault</button>
+  <button onclick="saveMemory()">💾 Save to Vault</button>
+<button onclick="viewVault()">📂 View Vault</button>
+
   <div id="response"></div>
+  <div id="vault" style="margin-top: 2rem; display: none;">
+  <h3>🧠 Your Vault</h3>
+  <ul id="vaultList"></ul>
+</div>
+
 
   <script>
-    async function sendPrompt() {
-      const prompt = document.getElementById('userInput').value;
-      const responseBox = document.getElementById('response');
-      responseBox.innerHTML = "⏳ Thinking...";
+    <script>
+  let lastResponse = '';
 
-      try {
-        const response = await fetch('/api/generate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ prompt })
-        });
+  async function sendPrompt() {
+    const prompt = document.getElementById('userInput').value;
+    const model = document.getElementById('model').value;
+    const responseBox = document.getElementById('response');
+    responseBox.innerHTML = "⏳ Asking the Vault...";
 
-        const data = await response.json();
-        responseBox.innerHTML = data.response || '❌ No response received.';
-      } catch (error) {
-        responseBox.innerHTML = '⚠️ Error connecting to server.';
-        console.error(error);
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, model }),
+      });
+
+      const data = await res.json();
+      lastResponse = data.response || '';
+      responseBox.innerHTML = lastResponse || "❌ No response received.";
+    } catch (error) {
+      responseBox.innerHTML = "⚠️ Error talking to the Vault.";
+      console.error(error);
+    }
+  }
+
+  function saveMemory() {
+    if (!lastResponse) return alert("No memory to save!");
+    const entry = {
+      text: lastResponse,
+      timestamp: new Date().toLocaleString()
+    };
+    const vault = JSON.parse(localStorage.getItem("vault")) || [];
+    vault.push(entry);
+    localStorage.setItem("vault", JSON.stringify(vault));
+    alert("Memory saved to your Vault ✅");
+  }
+
+  function viewVault() {
+    const vaultDiv = document.getElementById("vault");
+    const vaultList = document.getElementById("vaultList");
+    const vault = JSON.parse(localStorage.getItem("vault")) || [];
+    vaultList.innerHTML = '';
+
+    if (vault.length === 0) {
+      vaultList.innerHTML = "<li><em>No memories saved yet.</em></li>";
+    } else {
+      vault.forEach(entry => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${entry.timestamp}:</strong> ${entry.text}`;
+        vaultList.appendChild(li);
+      });
+    }
+
+    vaultDiv.style.display = 'block';
+  }
+</script>
+
       }
     }
   </script>
